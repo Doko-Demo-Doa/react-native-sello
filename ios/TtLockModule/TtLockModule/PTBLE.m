@@ -205,6 +205,10 @@
     }
 }
 
+- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate key:(LockModel *)key completion:(BLECompletion)completion {
+    // TODO...
+}
+
 - (void)getLockTimeValueKey:(LockModel *)key completion:(BLECompletion)completion{
     _commandDict[@(BLECommandGetTime)] = completion;
     _currentKey = key;
