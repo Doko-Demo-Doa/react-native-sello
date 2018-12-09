@@ -206,7 +206,7 @@
 }
 
 - (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate key:(LockModel *)key completion:(BLECompletion)completion {
-    // TODO...
+    [_ttlock addKeyboardPassword_password:keyboardPassword startDate:[NSDate dateWithTimeIntervalSince1970:startDate/1000] endDate:[NSDate dateWithTimeIntervalSince1970:endDate] adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:1 timezoneRawOffset:-1];
 }
 
 - (void)getLockTimeValueKey:(LockModel *)key completion:(BLECompletion)completion{
