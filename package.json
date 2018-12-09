@@ -1,0 +1,44 @@
+{
+  "_from": "react-native-ttlock@^1.0.0",
+  "_id": "react-native-ttlock@1.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-kLhGqI4EREXbndY+S46yB/DZ+SQe2yrp71ZjXn/iaLaJO47rp8cWQ4HvPSJXnvaMRyFInPLrqyPFeIEhiCclfA==",
+  "_location": "/react-native-ttlock",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "react-native-ttlock@^1.0.0",
+    "name": "react-native-ttlock",
+    "escapedName": "react-native-ttlock",
+    "rawSpec": "^1.0.0",
+    "saveSpec": null,
+    "fetchSpec": "^1.0.0"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-native-ttlock/-/react-native-ttlock-1.0.1.tgz",
+  "_shasum": "5a5fec6eef599276267914d88f0541d9033d7386",
+  "_spec": "react-native-ttlock@^1.0.0",
+  "_where": "/Users/jinbolu/Documents/GitHub/ReactNative-Demo/test",
+  "author": "",
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "## 自动下载组件",
+  "keywords": [
+    "react-native"
+  ],
+  "license": "",
+  "main": "index.js",
+  "name": "react-native-ttlock",
+  "peerDependencies": {
+    "react-native": "^0.41.2",
+    "react-native-windows": "0.41.0-rc.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.2"
+}
