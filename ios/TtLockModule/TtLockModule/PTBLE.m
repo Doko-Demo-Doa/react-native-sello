@@ -1,11 +1,3 @@
-//
-//  PTBLE.m
-//  PublicHouse
-//
-//  Created by Jinbo Lu on 2018/7/11.
-//  Copyright © 2018年 HangZhouSciener. All rights reserved.
-//
-
 #import "PTBLE.h"
 #import <AVFoundation/AVFoundation.h>
 #import <libkern/OSAtomic.h>
@@ -205,8 +197,10 @@
     }
 }
 
-- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate key:(LockModel *)key completion:(BLECompletion)completion {
-    [_ttlock addKeyboardPassword_password:keyboardPassword startDate:[NSDate dateWithTimeIntervalSince1970:startDate/1000] endDate:[NSDate dateWithTimeIntervalSince1970:endDate] adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:1 timezoneRawOffset:-1];
+- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(long long)startDate endDate:(long long)endDate key:(LockModel *)key completion:(BLECompletion)completion {
+    
+    _commandDict[@(BLECommandAddPassword)] = completion;
+    [_ttlock addKeyboardPassword_password:keyboardPassword startDate:[NSDate dateWithTimeIntervalSince1970:startDate/1000] endDate:[NSDate dateWithTimeIntervalSince1970:endDate/1000] adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:1 timezoneRawOffset:-1];
 }
 
 - (void)getLockTimeValueKey:(LockModel *)key completion:(BLECompletion)completion{
@@ -515,13 +509,23 @@
 }
 
 - (void)onResetLock{
-    
     NSLog(@"恢复出厂设置成功");
     BLECompletion completion = _commandDict[@(BLECommandResetLock)];
     if (completion) {
         [_commandDict removeObjectForKey:@(BLECommandResetLock)];
         dispatch_main_async(^{
             completion(true,nil);
+        });
+    }
+}
+
+- (void)onAddUserKeyBoardPassword {
+    NSLog(@"Added user keyboard password");
+    BLECompletion completion = _commandDict[@(BLECommandAddPassword)];
+    if (completion) {
+        [_commandDict removeObjectForKey:@(BLECommandAddPassword)];
+        dispatch_main_async(^{
+            completion(true, nil);
         });
     }
 }

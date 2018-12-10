@@ -43,6 +43,8 @@ typedef NS_ENUM(NSInteger,BLECommand) {
     BLECommandGetTime,
     BLECommandAddLock,
     
+    BLECommandAddPassword,
+    
     BLECommandSetNB,
     
     BLECommandAccessoryAdd,//添加IC 指纹
@@ -108,7 +110,7 @@ typedef void(^BLECompletion)(BOOL success,id info);
 /** 设置锁的时间   timeValue == 0（获取服务器时间）， timeValue != 0（设置该时间） */
 - (void)setLockTimeValue:(long long)timeValue key:(LockModel *)key completion:(BLECompletion)completion;
 
-- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)startDate key:(LockModel *)key completion:(BLECompletion)completion;
+- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate key:(LockModel *)key completion:(BLECompletion)completion;
 /** 获取锁里面的时间 */
 - (void)getLockTimeValueKey:(LockModel *)key completion:(BLECompletion)completion;
 /** 获取锁的特征值 */

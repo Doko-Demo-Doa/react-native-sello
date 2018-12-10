@@ -85,6 +85,13 @@ export default class TtLock {
         TtLockModule.setLockTime(timestamp,JSON.stringify(lockObj),cb)
     }
 
+    static addKeyboardPassword(keyboardPassword, startDate, endDate, lockObj, cb){
+        if(Platform.OS === Platform_IOS){
+            TtLock.startBTDeviceScan()
+        }
+        TtLockModule.addKeyboardPassword(keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
+    }
+
     static addReceiveScanDeviceListener(cb){
         if(Platform.OS === Platform_IOS){
             listener = TtLockIOSEmitter.addListener(receiverBtDeviceScanEvent,lockItemMap => {

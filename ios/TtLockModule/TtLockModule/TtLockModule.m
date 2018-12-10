@@ -91,10 +91,11 @@ RCT_EXPORT_METHOD(setLockTime:(double)time lockJsonString:(NSString *)lockJsonSt
     }
 }
 
-RCT_EXPORT_METHOD(addKeyboardPasword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate lockJsonString:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
+RCT_EXPORT_METHOD(addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate lockJsonString:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
 {
     LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
     NSDictionary *param = @{@"keyboardPassword":keyboardPassword, @"startDate":@(startDate), @"endDate":@(endDate)};
+    NSLog(@"aaa %@", param);
     
     if ([PTBLE shareInstance].isBLEConnected) {
         [self lock:lockModel param:param option:TTLockOptionAddKeyboardPassword callBlock:callBlock];
@@ -170,6 +171,9 @@ RCT_EXPORT_METHOD(resetLock:(NSString *)lockJsonString callBlock:(RCTResponseSen
             break;
         case TTLockOptionAddKeyboardPassword:
         {
+            NSLog(@"=== %@", param[@"keyboardPassword"]);
+            NSLog(@"=== %@", param[@"startDate"]);
+            NSLog(@"=== %@", param[@"endDate"]);
             [[PTBLE shareInstance] addKeyboardPassword:[param[@"keyboardPassword"] string] startDate:[param[@"startDate"] doubleValue] endDate:[param[@"endDate"] doubleValue] key:lock completion:^(BOOL success, id info) {
                 callBlock(@[[self optionSuccess:success info:info]]);
             }];
