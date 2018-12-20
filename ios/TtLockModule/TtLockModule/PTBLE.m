@@ -197,10 +197,28 @@
     }
 }
 
-- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(long long)startDate endDate:(long long)endDate key:(LockModel *)key completion:(BLECompletion)completion {
-    
+- (void)addAdminKeyboardPassword:(NSString *)adminPassword startDate:(double)startDate endDate:(double)endDate key:(LockModel *)key completion:(BLECompletion)completion {
     _commandDict[@(BLECommandAddPassword)] = completion;
-    [_ttlock addKeyboardPassword_password:keyboardPassword startDate:[NSDate dateWithTimeIntervalSince1970:startDate/1000] endDate:[NSDate dateWithTimeIntervalSince1970:endDate/1000] adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:1 timezoneRawOffset:-1];
+    [_ttlock setAdminKeyBoardPassword:adminPassword adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr version:key.version unlockFlag:key.lockFlagPos.intValue];
+}
+
+- (void)addKeyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate key:(LockModel *)key completion:(BLECompletion)completion {
+    _commandDict[@(BLECommandAddPassword)] = completion;
+    
+    NSDate *start = [NSDate dateWithTimeIntervalSince1970:startDate/1000];
+    NSDate *end = [NSDate dateWithTimeIntervalSince1970:endDate/1000];
+    
+    NSLog(@"aaaa %@", start);
+    NSLog(@"aaaa %@", end);
+    NSLog(@"ssss %@", start);
+    NSLog(@"ssss %@", end);
+    if (endDate == 0) {
+        NSLog(@"come");
+        start = nil;
+        end = nil;
+    }
+
+    [_ttlock addKeyboardPassword_password:keyboardPassword startDate:start endDate:end adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:key.lockFlagPos.intValue timezoneRawOffset:-1];
 }
 
 - (void)getLockTimeValueKey:(LockModel *)key completion:(BLECompletion)completion{
@@ -245,13 +263,20 @@
 - (void)getLockPasswordListKey:(LockModel *)key completion:(BLECompletion)completion{
     _currentKey = key;
     _commandDict[@(BLECommandGetStorageData)] = completion;
-    [_ttlock getKeyboardPasswordList_adminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:key.lockFlagPos.intValue timezoneRawOffset:-1];
+    [_ttlock getKeyboardPasswordList_adminPS
+     :key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:key.lockFlagPos.intValue timezoneRawOffset:-1];
 }
 
 - (void)getLockPasswordInfoKey:(LockModel *)key completion:(BLECompletion)completion{
     _currentKey = key;
     _commandDict[@(BLECommandGetStorageData)] = completion;
     [_ttlock getPasswordData_lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:key.lockFlagPos.intValue timezoneRawOffset:-1];
+}
+
+- (void)getAdminKeyboardPwd:(LockModel *)key completion:(BLECompletion)completion{
+    _currentKey = key;
+    _commandDict[@(BLECommandGetAdminPwd)] = completion;
+    [_ttlock getAdminKeyBoardPasswordWithAdminPS:key.adminPwd lockKey:key.lockKey aesKey:key.aesKeyStr unlockFlag:key.lockFlagPos.intValue];
 }
 
 - (void)resetLockKey:(LockModel*)key completion:(BLECompletion)completion{
@@ -473,6 +498,7 @@
 
 //读取操作记录
 - (void)onGetOperateLog_LockOpenRecordStr:(NSString *)LockOpenRecordStr {
+    NSLog(@"Yolo 2 %@",LockOpenRecordStr);
     //操作记录
     BLECompletion unlockRecordBlock = _commandDict[@(BLECommandGetRecord)];
     [_commandDict removeObjectForKey:@(BLECommandGetRecord)];
@@ -541,6 +567,15 @@
     }
 }
 
+- (void)onGetAdminKeyBoardPassword:(NSString *)adminPasscode {
+    NSLog(@"Awesome %@", adminPasscode);
+    BLECompletion completion = _commandDict[@(BLECommandGetAdminPwd)];
+    [_commandDict removeObjectForKey:@(BLECommandGetAdminPwd)];
+    dispatch_main_async(^{
+        completion(true, adminPasscode);
+    });
+}
+
 - (void)onGetDeviceCharacteristic:(long long)characteristic{
     NSLog(@"读取锁特征值：%lld",characteristic);
     BLECompletion lockInfoBlock = _commandDict[@(BLECommandGetSpecialValue)];
@@ -553,12 +588,12 @@
 }
 
 - (void)onGetDeviceInfo:(NSMutableDictionary *)infoDic{
-    NSLog(@"读取锁固件信息：%@",infoDic);
+    NSLog(@"读取锁固件信息：%@", infoDic);
     BLECompletion lockInfoBlock = _commandDict[@(BLECommandGetSystem)];
     [_commandDict removeObjectForKey:@(BLECommandGetSystem)];
     if (lockInfoBlock){
         dispatch_main_async(^{
-            lockInfoBlock(true,infoDic);
+            lockInfoBlock(true, infoDic);
         });
     }
 }

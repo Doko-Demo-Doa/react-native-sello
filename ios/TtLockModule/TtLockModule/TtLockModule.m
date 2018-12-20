@@ -15,7 +15,11 @@ typedef NS_ENUM(NSInteger,TTLockOption){
     TTLockOptionSetTime,
     TTLockOptionGetRecordLog,
     TTLockOptionResetLock,
-    TTLockOptionAddKeyboardPassword
+    TTLockOptionAddKeyboardPassword,
+    TTLockOptionGetSystemLockKey,
+    TTLockOptionGetLockPasswordListKey,
+    TTLockOptionGetLockPasswordInfoKey,
+    TTLockOptionGetAdminKeyboardPwd
 };
 
 @interface TtLockModule()
@@ -104,6 +108,49 @@ RCT_EXPORT_METHOD(addKeyboardPassword:(NSString *)keyboardPassword startDate:(do
     }
 }
 
+RCT_EXPORT_METHOD(getDeviceInfo:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
+{
+    LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
+
+    if ([PTBLE shareInstance].isBLEConnected) {
+        [self lock:lockModel param:nil option:TTLockOptionGetSystemLockKey callBlock:callBlock];
+    }else{
+        [self connectLock:lockModel param:nil option:TTLockOptionGetSystemLockKey callBlock:callBlock];
+    }
+}
+
+RCT_EXPORT_METHOD(getLockPasswordListKey:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
+{
+    LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
+    
+    if ([PTBLE shareInstance].isBLEConnected) {
+        [self lock:lockModel param:nil option:TTLockOptionGetLockPasswordListKey callBlock:callBlock];
+    }else{
+        [self connectLock:lockModel param:nil option:TTLockOptionGetLockPasswordListKey callBlock:callBlock];
+    }
+}
+
+RCT_EXPORT_METHOD(getLockPasswordInfoKey:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
+{
+    LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
+    
+    if ([PTBLE shareInstance].isBLEConnected) {
+        [self lock:lockModel param:nil option:TTLockOptionGetLockPasswordInfoKey callBlock:callBlock];
+    }else{
+        [self connectLock:lockModel param:nil option:TTLockOptionGetLockPasswordInfoKey callBlock:callBlock];
+    }
+}
+
+RCT_EXPORT_METHOD(getAdminKeyboardPwd:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
+{
+    LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
+    if ([PTBLE shareInstance].isBLEConnected) {
+        [self lock:lockModel param:nil option:TTLockOptionGetAdminKeyboardPwd callBlock:callBlock];
+    }else{
+        [self connectLock:lockModel param:nil option:TTLockOptionGetAdminKeyboardPwd callBlock:callBlock];
+    }
+}
+
 RCT_EXPORT_METHOD(getOperateLog:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
 {
     LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
@@ -171,14 +218,44 @@ RCT_EXPORT_METHOD(resetLock:(NSString *)lockJsonString callBlock:(RCTResponseSen
             break;
         case TTLockOptionAddKeyboardPassword:
         {
-            NSLog(@"=== %@", param[@"keyboardPassword"]);
-            NSLog(@"=== %@", param[@"startDate"]);
-            NSLog(@"=== %@", param[@"endDate"]);
-            [[PTBLE shareInstance] addKeyboardPassword:[param[@"keyboardPassword"] string] startDate:[param[@"startDate"] doubleValue] endDate:[param[@"endDate"] doubleValue] key:lock completion:^(BOOL success, id info) {
+            [[PTBLE shareInstance] addKeyboardPassword:param[@"keyboardPassword"] startDate:[param[@"startDate"] doubleValue] endDate:[param[@"endDate"] doubleValue] key:lock completion:^(BOOL success, id info) {
                 callBlock(@[[self optionSuccess:success info:info]]);
             }];
         }
             break;
+            
+        case TTLockOptionGetSystemLockKey:
+        {
+            [[PTBLE shareInstance] getLockSystemLockKey:lock.lockKey aesKey:lock.aesKeyStr completion:^(BOOL success, id info) {
+                callBlock(@[[self optionSuccess:success info:info]]);
+            }];
+        }
+            break;
+            
+        case TTLockOptionGetLockPasswordListKey:
+        {
+            [[PTBLE shareInstance] getLockPasswordListKey:lock completion:^(BOOL success, id info) {
+                callBlock(@[[self optionSuccess:success info:info]]);
+            }];
+        }
+            break;
+            
+        case TTLockOptionGetLockPasswordInfoKey:
+        {
+            [[PTBLE shareInstance] getLockPasswordInfoKey:lock completion:^(BOOL success, id info) {
+                callBlock(@[[self optionSuccess:success info:info]]);
+            }];
+        }
+            break;
+            
+        case TTLockOptionGetAdminKeyboardPwd:
+        {
+            [[PTBLE shareInstance] getAdminKeyboardPwd:lock completion:^(BOOL success, id info) {
+                callBlock(@[[self optionSuccess:success info:info]]);
+            }];
+        }
+            break;
+            
         case TTLockOptionGetRecordLog:
         {
             [[PTBLE shareInstance] getUnlockRecordKey:lock completion:^(BOOL success, id info) {
