@@ -1,9 +1,5 @@
 //
-//  TtLockModule.m
-//  HelloRN
-//
-//  Created by Jinbo Lu on 2018/9/17.
-//  Copyright © 2018年 Facebook. All rights reserved.
+//  Copyright © Sello.
 //
 
 #import "TtLockModule.h"
@@ -16,6 +12,7 @@ typedef NS_ENUM(NSInteger,TTLockOption){
     TTLockOptionGetRecordLog,
     TTLockOptionResetLock,
     TTLockOptionAddKeyboardPassword,
+    TTLockOptionRecoverKeyboardPassword,
     TTLockOptionGetSystemLockKey,
     TTLockOptionGetLockPasswordListKey,
     TTLockOptionGetLockPasswordInfoKey,
@@ -105,6 +102,24 @@ RCT_EXPORT_METHOD(addKeyboardPassword:(NSString *)keyboardPassword startDate:(do
         [self lock:lockModel param:param option:TTLockOptionAddKeyboardPassword callBlock:callBlock];
     }else{
         [self connectLock:lockModel param:param option:TTLockOptionAddKeyboardPassword callBlock:callBlock];
+    }
+}
+
+RCT_EXPORT_METHOD(recoverKeyboardPassword:(int)passwordType cycleType:(int)cycleType keyboardPassword:(NSString *)keyboardPassword startDate:(double)startDate endDate:(double)endDate lockJsonString:(NSString *)lockJsonString callBlock:(RCTResponseSenderBlock)callBlock)
+{
+    LockModel *lockModel = [LockModel yy_modelWithJSON:lockJsonString];
+    NSDictionary *param = @{
+                            @"passwordType":@(passwordType),
+                            @"cycleType":@(cycleType),
+                            @"keyboardPassword":keyboardPassword,
+                            @"startDate":@(startDate),
+                            @"endDate":@(endDate)
+                        };
+    
+    if ([PTBLE shareInstance].isBLEConnected) {
+        [self lock:lockModel param:param option:TTLockOptionRecoverKeyboardPassword callBlock:callBlock];
+    }else{
+        [self connectLock:lockModel param:param option:TTLockOptionRecoverKeyboardPassword callBlock:callBlock];
     }
 }
 
@@ -219,6 +234,14 @@ RCT_EXPORT_METHOD(resetLock:(NSString *)lockJsonString callBlock:(RCTResponseSen
         case TTLockOptionAddKeyboardPassword:
         {
             [[PTBLE shareInstance] addKeyboardPassword:param[@"keyboardPassword"] startDate:[param[@"startDate"] doubleValue] endDate:[param[@"endDate"] doubleValue] key:lock completion:^(BOOL success, id info) {
+                callBlock(@[[self optionSuccess:success info:info]]);
+            }];
+        }
+            break;
+            
+        case TTLockOptionRecoverKeyboardPassword:
+        {
+            [[PTBLE shareInstance] recoverKeyboardPassword:param[@"keyboardPassword"] passwordType:[param[@"passwordType"] integerValue] cycleType:[param[@"cycleType"] integerValue] startDate:[param[@"startDate"] doubleValue] endDate:[param[@"endDate"] doubleValue] key:lock completion:^(BOOL success, id info) {
                 callBlock(@[[self optionSuccess:success info:info]]);
             }];
         }

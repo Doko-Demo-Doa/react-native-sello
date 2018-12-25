@@ -207,11 +207,7 @@
     
     NSDate *start = [NSDate dateWithTimeIntervalSince1970:startDate/1000];
     NSDate *end = [NSDate dateWithTimeIntervalSince1970:endDate/1000];
-    
-    NSLog(@"aaaa %@", start);
-    NSLog(@"aaaa %@", end);
-    NSLog(@"ssss %@", start);
-    NSLog(@"ssss %@", end);
+
     if (endDate == 0) {
         NSLog(@"come");
         start = nil;
@@ -292,7 +288,7 @@
                         endDate:(long long)endDate
                                 key:(LockModel *)key
                          completion:(BLECompletion)completion{
-    
+
     _commandDict[@(BLECommandRecoverPassword)] = completion;
     _currentKey = key;
     NSDate *start_date = nil;
