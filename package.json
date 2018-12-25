@@ -7,6 +7,10 @@
     "react-native"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Doko-Demo-Doa/react-native-sello.git"
+  },
   "main": "index.js",
   "name": "react-native-sello",
   "peerDependencies": {
