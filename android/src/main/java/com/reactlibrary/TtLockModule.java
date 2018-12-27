@@ -11,7 +11,10 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.ttlock.bl.sdk.api.TTLockAPI;
 import com.ttlock.bl.sdk.callback.TTLockCallback;
@@ -19,6 +22,8 @@ import com.ttlock.bl.sdk.entity.DeviceInfo;
 import com.ttlock.bl.sdk.entity.Error;
 import com.ttlock.bl.sdk.entity.LockData;
 import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
+
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -104,8 +109,31 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
     }
 
     private void saveCurrentKeyObj(String keyJson){
-        Type lockDataType = new TypeToken<LockData>(){}.getType();
-        mSelectLock = new Gson().fromJson(keyJson,lockDataType);
+        try {
+            Type lockDataType = new TypeToken<LockData>(){}.getType();
+
+            GsonBuilder gb = new GsonBuilder();
+            gb.setExclusionStrategies(new ExclusionStrategy() {
+                @Override
+                public boolean shouldSkipField(FieldAttributes f) {
+                    return f.getName().equals("lockVersion");
+                }
+
+                @Override
+                public boolean shouldSkipClass(Class<?> clazz) {
+                    return false;
+                }
+            });
+            Gson gson = gb.create();
+
+            JSONObject json = new JSONObject(keyJson);
+            String lockVersion = json.getJSONObject("lockVersion").toString();
+            Log.e("lockVersion", lockVersion);
+            mSelectLock = gson.fromJson(keyJson,lockDataType);
+            mSelectLock.setLockVersion(lockVersion);
+        } catch (Exception e) {
+            Log.e("JSON", e.getMessage());
+        }
     }
 
     @ReactMethod
