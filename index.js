@@ -85,11 +85,62 @@ export default class TtLock {
         TtLockModule.setLockTime(timestamp,JSON.stringify(lockObj),cb)
     }
 
+    /**
+     *  @constant DeviceInfoTypeOfProductionModel     Product model
+     *  @constant DeviceInfoTypeOfHardwareVersion     Hardware version
+     *  @constant DeviceInfoTypeOfFirmwareVersion     Firmware version
+     *  @constant DeviceInfoTypeOfProductionDate      Production Date
+     *  @constant DeviceInfoTypeOfProductionMac       Mac
+     *  @constant DeviceInfoTypeOfProductionClock     Clock
+     */
+    static getDeviceInfo(lockObj, cb) {
+        if(Platform.OS === Platform_IOS){
+            TtLock.startBTDeviceScan()
+        }
+        TtLockModule.getDeviceInfo(JSON.stringify(lockObj), cb)
+    }
+
+    static getLockPasswordListKey(lockObj, cb) {
+        if(Platform.OS === Platform_IOS){
+            TtLock.startBTDeviceScan()
+        }
+        TtLockModule.getLockPasswordListKey(JSON.stringify(lockObj), cb)
+    }
+
+    static getLockPasswordInfoKey(lockObj, cb) {
+        if(Platform.OS === Platform_IOS){
+            TtLock.startBTDeviceScan()
+        }
+        TtLockModule.getLockPasswordInfoKey(JSON.stringify(lockObj), cb)
+    }
+
+    static getAdminKeyboardPwd(lockObj, cb) {
+        TtLockModule.getAdminKeyboardPwd(JSON.stringify(lockObj), cb)
+    }
+
     static addKeyboardPassword(keyboardPassword, startDate, endDate, lockObj, cb){
         if(Platform.OS === Platform_IOS){
             TtLock.startBTDeviceScan()
         }
         TtLockModule.addKeyboardPassword(keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
+    }
+
+    /* KeyboardPsTypeOnce = 1,
+    KeyboardPsTypePermanent = 2,
+    KeyboardPsTypePeriod = 3,
+    KeyboardPsTypeCycle = 4 */
+    static recoverKeyboardPassword(passwordType, cycleType, keyboardPassword, startDate, endDate, lockObj, cb) {
+        if(Platform.OS === Platform_IOS){
+            TtLock.startBTDeviceScan()
+        }
+        TtLockModule.recoverKeyboardPassword(passwordType, cycleType, keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
+    }
+
+    static modifyKeyboardPassword(passwordType, oldPass, newPass, startDate, endDate, lockObj, cb) {
+        if(Platform.OS === Platform_IOS){
+            TtLock.startBTDeviceScan()
+        }
+        TtLockModule.modifyKeyboardPassword(passwordType, cycleType, keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
     }
 
     static addReceiveScanDeviceListener(cb){
