@@ -20,18 +20,22 @@ import com.ttlock.bl.sdk.callback.TTLockCallback;
 import com.ttlock.bl.sdk.entity.DeviceInfo;
 import com.ttlock.bl.sdk.entity.Error;
 import com.ttlock.bl.sdk.entity.LockData;
+import com.ttlock.bl.sdk.entity.TransferData;
 import com.ttlock.bl.sdk.scanner.ExtendedBluetoothDevice;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 
 public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCallback {
 
   private final ReactApplicationContext reactContext;
-  private static TTLockAPI mLockApi;
+  private static TTLockAPI2 mLockApi;
   private Callback mLockOperationCallback;
   private static HashMap<String, ExtendedBluetoothDevice> mCachedDevice = new HashMap<>();
   private static int mLockAction = -1;
@@ -54,7 +58,7 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
 
   private String mKeyboardPassword;
   private String mNewKeyboardPassword;
-  private int mKeyboardPasswordType = 1;
+  private int mKeyboardPasswordType = 3;
 
   private long mLockSetStartDate;
   private long mLockSetEndDate;
@@ -73,7 +77,7 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
   @ReactMethod
   public void initTTlockApi(int uid) {
     mUid = uid;
-    mLockApi = new TTLockAPI(reactContext.getApplicationContext(), this);
+    mLockApi = new TTLockAPI2(reactContext.getApplicationContext(), this);
   }
 
   @ReactMethod
@@ -109,6 +113,7 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
   @ReactMethod
   public void addKeyboardPassword(String keyboardPassword, double startDate, double endDate, String keyJson, Callback callback) {
     mKeyboardPassword = keyboardPassword;
+    mNewKeyboardPassword = null;
     mLockSetStartDate = (long) startDate;
     mLockSetEndDate = (long) endDate;
     mLockAction = ACTION_ADD_KEYBOARD_PASSWORD;
@@ -162,6 +167,7 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
       JSONObject json = new JSONObject(keyJson);
       String lockVersion = json.getJSONObject("lockVersion").toString();
       Log.e("lockVersion", lockVersion);
+
       mSelectLock = gson.fromJson(keyJson, lockDataType);
       mSelectLock.setLockVersion(lockVersion);
     } catch (Exception e) {
@@ -253,7 +259,19 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
           mLockApi.setLockTime(extendedBluetoothDevice, mUid, mSelectLock.getLockVersion(), mSelectLock.getLockKey(), mLockSetTimeStamp, mSelectLock.getLockFlagPos(), mSelectLock.getAesKeyStr(), mSelectLock.getTimezoneRawOffset());
           break;
         case ACTION_ADD_KEYBOARD_PASSWORD:
-          mLockApi.addPeriodKeyboardPassword(extendedBluetoothDevice, mUid, mSelectLock.getLockVersion(), mSelectLock.getAdminPwd(), mSelectLock.getLockKey(), mSelectLock.getLockFlagPos(), mKeyboardPassword, mLockSetStartDate, mLockSetEndDate, mSelectLock.getAesKeyStr(), mSelectLock.getTimezoneRawOffset());
+          mLockApi.addPeriodKeyboardPassword(
+              extendedBluetoothDevice,
+              mUid,
+              mSelectLock.getLockVersion(),
+              mSelectLock.getAdminPwd(),
+              mSelectLock.getLockKey(),
+              mSelectLock.getLockFlagPos(),
+              mKeyboardPassword,
+              mLockSetStartDate,
+              mLockSetEndDate,
+              mSelectLock.getAesKeyStr(),
+              (long) TimeZone.getDefault().getOffset(System.currentTimeMillis()));
+          break;
         case ACTION_MODIFY_KEYBOARD_PASSWORD:
           mLockApi.modifyKeyboardPassword(
               extendedBluetoothDevice,
@@ -268,8 +286,8 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
               mLockSetStartDate,
               mLockSetEndDate,
               mSelectLock.getAesKeyStr(),
-              mSelectLock.getTimezoneRawOffset()
-          );
+              (long) TimeZone.getDefault().getOffset(System.currentTimeMillis()));
+          break;
         default:
           break;
       }
@@ -395,6 +413,10 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
       WritableMap map = Arguments.createMap();
       map.putBoolean("success", error == Error.SUCCESS);
       map.putString("errorCode", error.getErrorCode());
+      map.putInt("keyboardPwdType", i);
+      map.putString("originPwd", s);
+      map.putDouble("startDate", l);
+      map.putDouble("endDate", l1);
       mLockOperationCallback.invoke(map);
       mLockOperationCallback = null;
     }
@@ -596,6 +618,11 @@ public class TtLockModule extends ReactContextBaseJavaModule implements TTLockCa
 
   @Override
   public void onSetNBServer(ExtendedBluetoothDevice extendedBluetoothDevice, int i, Error error) {
+
+  }
+
+  @Override
+  public void onGetAdminKeyboardPassword(ExtendedBluetoothDevice extendedBluetoothDevice, int i, String s, Error error) {
 
   }
 }
