@@ -118,11 +118,12 @@ export default class TtLock {
         TtLockModule.getAdminKeyboardPwd(JSON.stringify(lockObj), cb)
     }
 
-    static addKeyboardPassword(keyboardPassword, startDate, endDate, lockObj, cb){
-        if(Platform.OS === Platform_IOS){
-            TtLock.startBTDeviceScan()
+    static addKeyboardPassword(keyboardPassword, passwordType, startDate, endDate, lockObj, cb){
+        TtLock.startBTDeviceScan()
+        if(Platform.OS === Platform_IOS) {
+            return TtLockModule.addKeyboardPassword(keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
         }
-        TtLockModule.addKeyboardPassword(keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
+        TtLockModule.addKeyboardPassword(keyboardPassword, passwordType, startDate, endDate, JSON.stringify(lockObj), cb)
     }
 
     /* KeyboardPsTypeOnce = 1,
@@ -140,7 +141,7 @@ export default class TtLock {
         if(Platform.OS === Platform_IOS){
             TtLock.startBTDeviceScan()
         }
-        TtLockModule.modifyKeyboardPassword(passwordType, cycleType, keyboardPassword, startDate, endDate, JSON.stringify(lockObj), cb)
+        TtLockModule.modifyKeyboardPassword(passwordType, oldPass, newPass, startDate, endDate, JSON.stringify(lockObj), cb)
     }
 
     static addReceiveScanDeviceListener(cb){
